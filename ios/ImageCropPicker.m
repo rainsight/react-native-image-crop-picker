@@ -372,38 +372,39 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
      options:options
      resultHandler:^(AVAsset * asset, AVAudioMix * audioMix,
                      NSDictionary *info) {
-         NSURL *sourceURL = [(AVURLAsset *)asset URL];
+         NSError *error;
+         AVURLAsset *avURLAsset = (AVURLAsset*) asset;
          
          // create temp file
          NSString *tmpDirFullPath = [self getTmpDirectory];
          NSString *filePath = [tmpDirFullPath stringByAppendingString:[[NSUUID UUID] UUIDString]];
-         filePath = [filePath stringByAppendingString:@".mp4"];
+         filePath = [filePath stringByAppendingString:@".MOV"];
          NSURL *outputURL = [NSURL fileURLWithPath:filePath];
          
-         [self.compression compressVideo:sourceURL outputURL:outputURL withOptions:self.options handler:^(AVAssetExportSession *exportSession) {
-             if (exportSession.status == AVAssetExportSessionStatusCompleted) {
-                 AVAsset *compressedAsset = [AVAsset assetWithURL:outputURL];
-                 AVAssetTrack *track = [[compressedAsset tracksWithMediaType:AVMediaTypeVideo] firstObject];
-                 
-                 NSNumber *fileSizeValue = nil;
-                 [outputURL getResourceValue:&fileSizeValue
-                                      forKey:NSURLFileSizeKey
-                                       error:nil];
-                 
-                 completion([self createAttachmentResponse:[outputURL absoluteString]
-                                                  withExif:nil
-                                             withSourceURL:[sourceURL absoluteString]
-                                       withLocalIdentifier: forAsset.localIdentifier
-                                              withFilename:[forAsset valueForKey:@"filename"]
-                                                 withWidth:[NSNumber numberWithFloat:track.naturalSize.width]
-                                                withHeight:[NSNumber numberWithFloat:track.naturalSize.height]
-                                                  withMime:@"video/mp4"
-                                                  withSize:fileSizeValue
-                                                  withData:nil]);
-             } else {
-                 completion(nil);
-             }
-         }];
+         if ([[NSFileManager defaultManager] copyItemAtURL:avURLAsset.URL
+                                                     toURL:outputURL
+                                                     error:&error]) {
+             AVAsset *compressedAsset = [AVAsset assetWithURL:outputURL];
+             AVAssetTrack *track = [[compressedAsset tracksWithMediaType:AVMediaTypeVideo] firstObject];
+             
+             NSNumber *fileSizeValue = nil;
+             [outputURL getResourceValue:&fileSizeValue
+                                  forKey:NSURLFileSizeKey
+                                   error:nil];
+             
+             completion([self createAttachmentResponse:[outputURL absoluteString]
+                                              withExif:nil
+                                         withSourceURL:@""
+                                   withLocalIdentifier: forAsset.localIdentifier
+                                          withFilename:[forAsset valueForKey:@"filename"]
+                                             withWidth:[NSNumber numberWithFloat:track.naturalSize.width]
+                                            withHeight:[NSNumber numberWithFloat:track.naturalSize.height]
+                                              withMime:@"video/mov"
+                                              withSize:fileSizeValue
+                                              withData:nil]);
+         } else {
+             completion(nil);
+         }
      }];
 }
 
