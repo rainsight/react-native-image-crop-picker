@@ -66,7 +66,8 @@
 }
 
 - (ImageResult*) compressImage:(UIImage*)image
-                   withOptions:(NSDictionary*)options {
+                   withOptions:(NSDictionary*)options
+                     imageData:(NSData *)imageData {
     ImageResult *result = [self compressImageDimensions:image withOptions:options];
     
     NSNumber *compressQuality = [options valueForKey:@"compressImageQuality"];
@@ -74,7 +75,12 @@
         compressQuality = [NSNumber numberWithFloat:1];
     }
     
-    result.data = UIImageJPEGRepresentation(result.image, [compressQuality floatValue]);
+    if (imageData == nil) {
+        result.data = UIImageJPEGRepresentation(result.image, [compressQuality floatValue]);
+    } else {
+        result.data = imageData;
+    }
+    
     result.mime = @"image/jpeg";
     
     return result;

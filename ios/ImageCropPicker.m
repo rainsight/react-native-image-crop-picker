@@ -482,7 +482,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                  UIImage *imgT = [UIImage imageWithData:imageData];
                                  UIImage *imageT = [imgT fixOrientation];
                                  
-                                 ImageResult *imageResult = [self.compression compressImage:imageT withOptions:self.options];
+                                 ImageResult *imageResult = [self.compression compressImage:imageT withOptions:self.options imageData:imageData];
                                  NSString *filePath = [self persistFile:imageResult.data];
                                  
                                  if (filePath == nil) {
@@ -605,7 +605,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
         
         [self startCropping:image];
     } else {
-        ImageResult *imageResult = [self.compression compressImage:image withOptions:self.options];
+        ImageResult *imageResult = [self.compression compressImage:image withOptions:self.options imageData:nil];
         NSString *filePath = [self persistFile:imageResult.data];
         if (filePath == nil) {
             [viewController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
