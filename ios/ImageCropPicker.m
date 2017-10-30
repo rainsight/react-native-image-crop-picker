@@ -169,7 +169,7 @@ RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options
         exif = [info objectForKey:UIImagePickerControllerMediaMetadata];
     }
     
-    [self processSingleImagePick:chosenImageT withExif:exif withViewController:picker withSourceURL:self.croppingFile[@"sourceURL"] withLocalIdentifier:self.croppingFile[@"localIdentifier"] withFilename:self.croppingFile[@"filename"]];
+    [self processSingleImagePick:chosenImageT imageData:nil withExif:exif withViewController:picker withSourceURL:self.croppingFile[@"sourceURL"] withLocalIdentifier:self.croppingFile[@"localIdentifier"] withFilename:self.croppingFile[@"filename"]];
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
@@ -564,6 +564,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                          [overlayView removeFromSuperview];
                          
                          [self processSingleImagePick:[UIImage imageWithData:imageData]
+                                            imageData: imageData
                                              withExif: exif
                                    withViewController:imagePickerController
                                         withSourceURL:[sourceURL absoluteString]
@@ -585,7 +586,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 // when user selected single image, with camera or from photo gallery,
 // this method will take care of attaching image metadata, and sending image to cropping controller
 // or to user directly
-- (void) processSingleImagePick:(UIImage*)image withExif:(NSDictionary*) exif withViewController:(UIViewController*)viewController withSourceURL:(NSString*)sourceURL withLocalIdentifier:(NSString*)localIdentifier withFilename:(NSString*)filename {
+- (void) processSingleImagePick:(UIImage*)image imageData:(NSData *) imageData withExif:(NSDictionary*) exif withViewController:(UIViewController*)viewController withSourceURL:(NSString*)sourceURL withLocalIdentifier:(NSString*)localIdentifier withFilename:(NSString*)filename {
     
     if (image == nil) {
         [viewController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
@@ -605,7 +606,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
         
         [self startCropping:image];
     } else {
-        ImageResult *imageResult = [self.compression compressImage:image withOptions:self.options imageData:nil];
+        ImageResult *imageResult = [self.compression compressImage:image withOptions:self.options imageData:imageData];
         NSString *filePath = [self persistFile:imageResult.data];
         if (filePath == nil) {
             [viewController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
