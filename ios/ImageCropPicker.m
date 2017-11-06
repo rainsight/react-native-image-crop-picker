@@ -378,7 +378,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
          // create temp file
          NSString *tmpDirFullPath = [self getTmpDirectory];
          NSString *filePath = [tmpDirFullPath stringByAppendingString:[[NSUUID UUID] UUIDString]];
-         filePath = [filePath stringByAppendingString:@".MOV"];
+         filePath = [filePath stringByAppendingString:[NSString stringWithFormat: @".%@", avURLAsset.URL.pathExtension]];
          NSURL *outputURL = [NSURL fileURLWithPath:filePath];
          
          if ([[NSFileManager defaultManager] copyItemAtURL:avURLAsset.URL
@@ -399,7 +399,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                           withFilename:[forAsset valueForKey:@"filename"]
                                              withWidth:[NSNumber numberWithFloat:track.naturalSize.width]
                                             withHeight:[NSNumber numberWithFloat:track.naturalSize.height]
-                                              withMime:@"video/mov"
+                                              withMime:@""
                                               withSize:fileSizeValue
                                               withData:nil]);
          } else {

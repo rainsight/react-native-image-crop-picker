@@ -81,7 +81,7 @@
         result.data = imageData;
     }
     
-    result.mime = @"image/jpeg";
+    result.mime = @"";
     
     return result;
 }
